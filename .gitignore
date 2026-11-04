@@ -1,0 +1,13 @@
+node_modules/
+dist/
+.next/
+coverage/
+*.tsbuildinfo
+.env
+.env.*
+!.env.example
+.DS_Store
+next-env.d.ts
+
+# Downloaded third-party datasets (re-downloadable; not committed)
+data/

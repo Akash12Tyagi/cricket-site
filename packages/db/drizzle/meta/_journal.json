@@ -1,0 +1,83 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1793007955527,
+      "tag": "0000_curved_proemial_gods",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1793011991031,
+      "tag": "0001_enable_pg_trgm",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793011992326,
+      "tag": "0002_phase3_news_search",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1793018409257,
+      "tag": "0003_real_data_import",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1793022203165,
+      "tag": "0004_runs_limit_hit_twice",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1793022532517,
+      "tag": "0005_fk_indexes",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1793041582714,
+      "tag": "0006_live_feed_watch_video",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1793044067599,
+      "tag": "0007_youtube_api_stats",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1793044735122,
+      "tag": "0008_newsroom_events",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1793073281267,
+      "tag": "0009_scorecard_feed",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1793081692445,
+      "tag": "0010_stream_sources",
+      "breakpoints": true
+    }
+  ]
+}

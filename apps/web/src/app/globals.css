@@ -1,0 +1,172 @@
+@import "tailwindcss";
+
+/*
+ * The Seam: the cricket ball is the brand. Leather-red shell, cool white-ball ground, seam stitches carry progress.
+ * Existing token names are kept (brand-*, ink, muted, line, surface, canvas, live) so every page inherits the world.
+ */
+@theme {
+  --color-leather-950: #3d0710;
+  --color-leather-900: #5c0a15;
+  --color-leather-800: #7d0f1d;
+  --color-leather-700: #9b1426;
+  --color-leather-600: #b3172b;
+  --color-thread: #f3e3c6;
+  --color-pinkball: #e8508a;
+  --color-pinkball-ink: #b4235e;
+
+  --color-brand-50: #fcf1f2;
+  --color-brand-100: #f8dde1;
+  --color-brand-600: #b3172b;
+  --color-brand-700: #9b1426;
+  --color-brand-900: #5c0a15;
+  --color-ink: #151820;
+  --color-muted: #59616e;
+  --color-line: #dde1e7;
+  --color-surface: #ffffff;
+  --color-canvas: #f3f5f8;
+  --color-live: #c8285f;
+
+  --font-sans: var(--font-archivo), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --radius-card: 1rem;
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+html { color-scheme: light; }
+body { @apply bg-canvas text-ink antialiased; font-family: var(--font-sans); font-feature-settings: "tnum" 0; }
+:focus-visible { @apply outline-2 outline-offset-2 outline-leather-600; border-radius: 4px; }
+::selection { background: var(--color-leather-800); color: var(--color-thread); }
+html { scrollbar-color: #b9c0ca transparent; accent-color: var(--color-leather-700); caret-color: var(--color-leather-700); }
+a { text-underline-offset: 3px; }
+
+/* Numbers that change while you watch never jitter: tabular figures everywhere scores appear. */
+.score { font-variant-numeric: tabular-nums; font-stretch: 88%; letter-spacing: -0.02em; }
+.wide { font-stretch: 112%; }
+.condensed { font-stretch: 82%; }
+
+/* The seam: two rows of stitches either side of a hairline, drawn as an inline SVG pattern (no images, CSP-safe). */
+.seam-stitch {
+  height: 10px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='10'%3E%3Cpath d='M3 3.7l4-2.2M3 8.5l4-2.2M10 3.7l4-2.2M10 8.5l4-2.2' stroke='%23f3e3c6' stroke-width='1.6' stroke-linecap='round' fill='none'/%3E%3Cpath d='M0 5h14' stroke='%23f3e3c6' stroke-opacity='.45' stroke-width='1'/%3E%3C/svg%3E");
+  background-repeat: repeat-x;
+}
+
+/* Live pulse: the pink ball breathing. */
+@keyframes pulse-ring { 0% { transform: scale(0.6); opacity: 0.7; } 80%, 100% { transform: scale(2.2); opacity: 0; } }
+.live-dot { position: relative; display: inline-block; width: 8px; height: 8px; border-radius: 999px; background: var(--color-pinkball); }
+.live-dot::after { content: ""; position: absolute; inset: 0; border-radius: inherit; background: var(--color-pinkball); animation: pulse-ring 1.6s var(--ease-out-expo) infinite; }
+
+/* The one bounce in the system (380 ms overshoot, like a ball off the pitch): only a score that just changed and the
+   brand ball use it. Everything else eases out. */
+@keyframes run-bump { 0% { transform: translateY(0) scale(1); } 40% { transform: translateY(-3px) scale(1.12); color: var(--color-leather-600); } 100% { transform: none; } }
+.bump { display: inline-block; animation: run-bump 380ms var(--ease-bounce); }
+.ball-spin { transition: transform 380ms var(--ease-bounce); }
+
+/* First paint: the bowled stitches sew in along the seam. Content is visible by default (no animation = full seam). */
+@keyframes stitch-in { from { opacity: 0; transform: translateY(1.5px); } }
+.stitch-in { animation: stitch-in 420ms var(--ease-out-expo) backwards; transform-box: fill-box; }
+
+/* Each card's top edge is its ball: leather for red-ball cricket, a white ball with its red seam for limited overs. */
+.edge-red { background: var(--color-leather-700); }
+.edge-white {
+  background-color: #eceff3;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='8'%3E%3Cpath d='M3 3l4-1.8M3 6.8l4-1.8M10 3l4-1.8M10 6.8l4-1.8' stroke='%23b3172b' stroke-width='1.3' stroke-linecap='round' fill='none'/%3E%3C/svg%3E");
+  background-repeat: repeat-x; background-position: center;
+}
+.group:hover .ball-spin { transform: rotate(200deg); }
+
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+
+/* Horizontal rail: snap, hidden scrollbar on touch, visible thin bar on desktop. */
+.rail { scroll-snap-type: x mandatory; scroll-padding-inline: 1rem; overscroll-behavior-x: contain; }
+.rail > * { scroll-snap-align: start; }
+@media (min-width: 1024px) { .rail { scroll-padding-inline: 0; } }
+
+/* Article body (sanitised HTML from the CMS). */
+.article { line-height: 1.75; font-size: 1.0625rem; max-width: 70ch; }
+.article > * + * { margin-top: 1rem; }
+.article h2 { font-size: 1.5rem; font-weight: 700; margin-top: 2rem; font-stretch: 105%; }
+.article h3 { font-size: 1.25rem; font-weight: 650; margin-top: 1.5rem; }
+.article a { color: var(--color-brand-700); text-decoration: underline; }
+.article ul { list-style: disc; padding-left: 1.5rem; }
+.article ol { list-style: decimal; padding-left: 1.5rem; }
+.article blockquote { border-left: 1px solid var(--color-leather-600); padding-left: 1rem; color: var(--color-muted); }
+.article img { border-radius: 0.75rem; max-width: 100%; height: auto; }
+.article table { width: 100%; font-size: 0.9rem; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.article th, .article td { border-bottom: 1px solid var(--color-line); padding: 0.4rem; text-align: left; }
+.article pre { overflow-x: auto; background: var(--color-canvas); padding: 1rem; border-radius: 0.5rem; }
+.article hr { border-color: var(--color-line); }
+
+/* ───────── Shot scenes (ShotBurst) ───────── */
+.shot { position: relative; color: var(--color-ink); }
+.shot .bat { transform-origin: 51.5px 40px; transform-box: view-box; transform: rotate(-38deg); animation: bat-swing 380ms var(--ease-out-expo) 120ms both; }
+@keyframes bat-swing { from { transform: rotate(-70deg); } to { transform: rotate(-38deg) rotate(64deg); } }
+.shot .ball { transform-box: fill-box; transform-origin: center; animation-duration: 1100ms; animation-timing-function: var(--ease-out-expo); animation-delay: 340ms; animation-fill-mode: both; }
+.shot .trail { stroke-dashoffset: 0; opacity: 0; animation: trail-in 900ms var(--ease-out-expo) 360ms both; }
+@keyframes trail-in { from { opacity: 0.9; clip-path: inset(0 100% 0 0); } to { opacity: 0.55; clip-path: inset(0 0 0 0); } }
+.shot-dot .ball { animation-name: ball-dot; } .shot-dot .trail { display: none; }
+@keyframes ball-dot { 0% { transform: translate(18px, -6px); } 40% { transform: translate(0, 0); } 60% { transform: translate(-3px, -6px); } 100% { transform: translate(-4px, 0); } }
+.shot-1 .ball { animation-name: ball-1; } .shot-1 .trail { clip-path: inset(0 62% 0 0); animation: none; opacity: .5; }
+@keyframes ball-1 { from { transform: translate(0, 0) rotate(0); } to { transform: translate(52px, 0) rotate(540deg); } }
+.shot-2 .ball { animation-name: ball-2; } .shot-2 .trail { clip-path: inset(0 38% 0 0); animation: none; opacity: .5; }
+@keyframes ball-2 { from { transform: translate(0, 0) rotate(0); } to { transform: translate(88px, 0) rotate(800deg); } }
+.shot-3 .ball { animation-name: ball-3; } .shot-3 .trail { clip-path: inset(0 20% 0 0); animation: none; opacity: .5; }
+@keyframes ball-3 { from { transform: translate(0, 0) rotate(0); } to { transform: translate(112px, 0) rotate(1000deg); } }
+.shot-4 .ball { animation-name: ball-4; animation-duration: 800ms; }
+@keyframes ball-4 { 0% { transform: translate(0, 0); } 80% { transform: translate(140px, 0); } 90% { transform: translate(134px, -6px); } 100% { transform: translate(138px, 0); } }
+.shot-6 .ball { animation-name: ball-6; animation-duration: 1000ms; }
+@keyframes ball-6 { 0% { transform: translate(0, 0) scale(1); } 50% { transform: translate(90px, -70px) scale(1.25); } 100% { transform: translate(150px, -46px) scale(.6); opacity: 0; } }
+.shot-6 .stars circle { animation: star-pop 600ms var(--ease-bounce) 1000ms both; transform-box: fill-box; transform-origin: center; }
+@keyframes star-pop { from { transform: scale(0); } }
+.shot-W .ball { animation-name: ball-w; animation-duration: 520ms; } .shot-W .trail { display: none; }
+@keyframes ball-w { from { transform: translate(30px, -4px); } to { transform: translate(-26px, -2px); } }
+.shot-W .bail-l { transform-box: fill-box; transform-origin: center; animation: bail-l 700ms var(--ease-out-expo) 820ms both; }
+.shot-W .bail-r { transform-box: fill-box; transform-origin: center; animation: bail-r 700ms var(--ease-out-expo) 820ms both; }
+@keyframes bail-l { to { transform: translate(-14px, -26px) rotate(-120deg); opacity: .8; } }
+@keyframes bail-r { to { transform: translate(12px, -30px) rotate(140deg); opacity: .8; } }
+.shot-W .bat { animation: none; transform: rotate(-38deg) rotate(30deg); }
+.shot-extra .ball { animation-name: ball-dot; } .shot-extra .trail { display: none; } .shot-extra .bat { animation: none; }
+.shot-label { position: absolute; right: 4px; top: 2px; font-weight: 800; font-stretch: 112%; font-size: 0.8rem; letter-spacing: 0.02em; color: var(--color-leather-700); animation: label-pop 420ms var(--ease-bounce) 700ms both; }
+.shot-label-big { font-size: 1.6rem; color: var(--color-leather-600); }
+.shot-W .shot-label { color: var(--color-ink); }
+.shot-label-left { right: auto; left: 6px; }
+.shot .run-arc { animation: run-arc 420ms var(--ease-out-expo) both; }
+@keyframes run-arc { from { opacity: 0; stroke-dashoffset: 40; } }
+.shot .dot-mark { transform-box: fill-box; transform-origin: center; animation: star-pop 420ms var(--ease-out-expo) 600ms both; }
+.shot-label-extra { color: var(--color-pinkball-ink); font-size: 1.25rem; }
+@keyframes label-pop { from { opacity: 0; transform: translateY(6px) scale(.7); } }
+/* Reduced motion: no swing or flight, the scene simply shows where the ball ended up. */
+@media (prefers-reduced-motion: reduce) {
+  .shot-1 .ball { transform: translate(52px, 0); } .shot-2 .ball { transform: translate(88px, 0); } .shot-3 .ball { transform: translate(112px, 0); }
+  .shot-4 .ball { transform: translate(138px, 0); } .shot-6 .ball { transform: translate(150px, -46px) scale(.6); }
+  .shot .trail { opacity: .5; } .shot-W .bail-l { transform: translate(-14px, -26px) rotate(-120deg); } .shot-W .bail-r { transform: translate(12px, -30px) rotate(140deg); }
+}
+
+/* ───────── Floodlit night (heroes) ───────── */
+.floodlit {
+  background-color: #170a0e; /* leather-black: night over the ground, tinted from the ball */
+  background-image:
+    radial-gradient(60% 90% at 12% -20%, rgba(255, 244, 214, 0.22), transparent 60%),
+    radial-gradient(60% 90% at 88% -20%, rgba(255, 244, 214, 0.18), transparent 60%),
+    radial-gradient(120% 60% at 50% 120%, rgba(155, 20, 38, 0.55), transparent 70%);
+  color: #f5f6f8;
+}
+/* Floodlight towers flicker on once when the page arrives. */
+@keyframes lights-on { 0% { opacity: .2; } 8% { opacity: 1; } 12% { opacity: .5; } 20%, 100% { opacity: 1; } }
+.lights-on { animation: lights-on 1200ms linear both; }
+
+/* Count-up numbers and pop-in rows. */
+@keyframes pop-in { from { opacity: 0; transform: translateY(8px) scale(.98); } }
+.pop-in { animation: pop-in 520ms var(--ease-out-expo) both; }
+
+/* Collectible player card: tilt with the pointer, flip for the back. */
+.card3d { perspective: 1200px; }
+.card3d-inner { position: relative; transform-style: preserve-3d; transition: transform 700ms var(--ease-out-expo); }
+.card3d[data-flipped="true"] .card3d-inner { transform: rotateY(180deg); }
+.card3d-face { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.card3d-back { position: absolute; inset: 0; transform: rotateY(180deg); }
+@media (prefers-reduced-motion: reduce) { .card3d-inner { transition: none; } }
+
+/* Ball that rolls across a loading state. */
+@keyframes roll { from { transform: translateX(-40px) rotate(0); } to { transform: translateX(calc(100% + 40px)) rotate(720deg); } }
+@keyframes ball-fly { 0% { transform: translate(-90px, 50px) rotate(0) scale(.8); opacity: 0; } 15% { opacity: 1; } 60% { transform: translate(40px, -20px) rotate(400deg) scale(1.05); opacity: 1; } 100% { transform: translate(140px, -60px) rotate(720deg) scale(.4); opacity: 0; } }

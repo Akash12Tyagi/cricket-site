@@ -1,0 +1,30 @@
+# Local development services only. Production uses managed Postgres/Redis (plan §3.2).
+services:
+  postgres:
+    restart: unless-stopped   # come back automatically when Docker restarts
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: cricket
+      POSTGRES_PASSWORD: cricket_dev_only
+      POSTGRES_DB: cricket
+    ports: ["127.0.0.1:5440:5432"]
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cricket"]
+      interval: 3s
+      retries: 20
+  redis:
+    restart: unless-stopped   # come back automatically when Docker restarts
+    image: redis:8-alpine
+    ports: ["127.0.0.1:6380:6379"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 3s
+      retries: 20
+  mailpit:
+    restart: unless-stopped   # come back automatically when Docker restarts
+    # Catches login-code emails locally (web inbox on http://localhost:8025) so codes never go to logs.
+    image: axllent/mailpit:latest
+    ports: ["127.0.0.1:1025:1025", "127.0.0.1:8025:8025"]
+volumes:
+  pgdata:

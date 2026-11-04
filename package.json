@@ -1,0 +1,26 @@
+{
+  "name": "cricket-site",
+  "private": true,
+  "packageManager": "pnpm@11.9.0",
+  "engines": { "node": ">=24" },
+  "scripts": {
+    "dev": "pnpm --parallel --filter @cricket/api --filter @cricket/web dev",
+    "build": "pnpm -r build",
+    "lint": "eslint .",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "db:up": "docker compose up -d",
+    "db:down": "docker compose down",
+    "db:generate": "pnpm --filter @cricket/db generate",
+    "db:migrate": "pnpm --filter @cricket/db migrate",
+    "db:seed": "pnpm --filter @cricket/db seed",
+    "check": "pnpm lint && pnpm typecheck && pnpm test"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.0",
+    "eslint": "^10.13.0",
+    "globals": "^17.0.0",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.72.0"
+  }
+}

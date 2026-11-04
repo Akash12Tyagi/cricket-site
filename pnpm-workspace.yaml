@@ -1,0 +1,7 @@
+packages:
+  - apps/*
+  - packages/*
+
+# Supply-chain safety: only these packages may run install scripts.
+allowBuilds:
+  esbuild: true

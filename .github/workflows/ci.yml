@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env: { POSTGRES_USER: cricket, POSTGRES_PASSWORD: cricket_ci, POSTGRES_DB: cricket }
+        ports: ["5432:5432"]
+        options: --health-cmd "pg_isready -U cricket" --health-interval 3s --health-retries 20
+      redis:
+        image: redis:8-alpine
+        ports: ["6379:6379"]
+        options: --health-cmd "redis-cli ping" --health-interval 3s --health-retries 20
+      mailpit:
+        image: axllent/mailpit:latest
+        ports: ["1025:1025"]
+    env:
+      NODE_ENV: test
+      DATABASE_URL: postgres://cricket:cricket_ci@127.0.0.1:5432/cricket
+      REDIS_URL: redis://127.0.0.1:6379
+      WEB_ORIGIN: http://localhost:3100
+      AUTH_SECRET: ci-only-secret-not-used-anywhere-else-0123456789
+      SMTP_URL: smtp://127.0.0.1:1025
+      MAIL_FROM: CI <ci@example.com>
+      API_INTERNAL_URL: http://127.0.0.1:4000
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version-file: .nvmrc, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm db:migrate
+      - run: pnpm test
+      - run: pnpm --filter @cricket/api build
+      - run: pnpm --filter @cricket/web build
+        env: { NODE_ENV: production }
+      - name: Release gate: no source maps or console calls in browser bundle
+        run: ./scripts/check-web-bundle.sh
+      - name: Security probes against the running stack
+        env: { NODE_ENV: production, REVALIDATE_SECRET: ci-only-revalidate-secret-0123456789abcdef, WEB_INTERNAL_URL: "http://127.0.0.1:3100" }
+        run: |
+          node apps/api/dist/server.js > api.log 2>&1 &
+          (cd apps/web && pnpm start > ../../web.log 2>&1 &)
+          for i in $(seq 1 30); do curl -sf http://127.0.0.1:4000/healthz >/dev/null && curl -sf -o /dev/null http://127.0.0.1:3100/robots.txt && break; sleep 1; done
+          node scripts/security-probe.mjs
+      - name: Dependency audit (high and above)
+        run: pnpm audit --audit-level high --prod
